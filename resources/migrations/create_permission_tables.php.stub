@@ -14,19 +14,19 @@ class CreatePermissionTables extends Migration
     {
         $config = config('laravel-permission.table_names');
 
-        Schema::create($config['roles'], function (Blueprint $table) {
+        Schema::connection('user')->create($config['roles'], function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
             $table->timestamps();
         });
 
-        Schema::create($config['permissions'], function (Blueprint $table) {
+        Schema::connection('user')->create($config['permissions'], function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
             $table->timestamps();
         });
 
-        Schema::create($config['user_has_permissions'], function (Blueprint $table) use ($config) {
+        Schema::connection('user')->create($config['user_has_permissions'], function (Blueprint $table) use ($config) {
             $table->integer('user_id')->unsigned();
             $table->integer('permission_id')->unsigned();
 
@@ -43,7 +43,7 @@ class CreatePermissionTables extends Migration
             $table->primary(['user_id', 'permission_id']);
         });
 
-        Schema::create($config['user_has_roles'], function (Blueprint $table) use ($config) {
+        Schema::connection('user')->create($config['user_has_roles'], function (Blueprint $table) use ($config) {
             $table->integer('role_id')->unsigned();
             $table->integer('user_id')->unsigned();
 
@@ -60,7 +60,7 @@ class CreatePermissionTables extends Migration
             $table->primary(['role_id', 'user_id']);
         });
 
-        Schema::create($config['role_has_permissions'], function (Blueprint $table) use ($config) {
+        Schema::connection('user')->create($config['role_has_permissions'], function (Blueprint $table) use ($config) {
             $table->integer('permission_id')->unsigned();
             $table->integer('role_id')->unsigned();
 
@@ -76,6 +76,10 @@ class CreatePermissionTables extends Migration
 
             $table->primary(['permission_id', 'role_id']);
         });
+
+        Schema::connection('user')->create($config['role_inherits'], function(Blueprint $table) use ($config){
+            $table->TODO;
+        });
     }
 
     /**
@@ -87,10 +91,10 @@ class CreatePermissionTables extends Migration
     {
         $config = config('laravel-permission.table_names');
 
-        Schema::drop($config['role_has_permissions']);
-        Schema::drop($config['user_has_roles']);
-        Schema::drop($config['user_has_permissions']);
-        Schema::drop($config['roles']);
-        Schema::drop($config['permissions']);
+        Schema::connection('user')->drop($config['role_has_permissions']);
+        Schema::connection('user')->drop($config['user_has_roles']);
+        Schema::connection('user')->drop($config['user_has_permissions']);
+        Schema::connection('user')->drop($config['roles']);
+        Schema::connection('user')->drop($config['permissions']);
     }
 }
