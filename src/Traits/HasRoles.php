@@ -5,23 +5,39 @@ namespace Spatie\Permission\Traits;
 use Illuminate\Support\Collection;
 use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\Contracts\Permission;
+use Spatie\Permission\Models\Role as R;
 
 trait HasRoles
 {
     use HasPermissions;
     use RefreshesPermissionCache;
 
-    /**
-     * A user may have multiple roles.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(
+    private $checkedRoles = [];
+
+    public function roles(){
+        $roles = $this->belongsToMany(
             config('laravel-permission.models.role'),
             config('laravel-permission.table_names.user_has_roles')
-        );
+        )->get();
+        
+        return $this->loopRoles($roles);;
+    }
+
+    /**
+     * Loop through Roles and find it's child roles
+     * 
+     * @var \Illuminate\Support\Collection $roles
+     * @return \Illuminate\Support\Collection $roles
+     */
+    private function loopRoles($roles){
+        foreach($roles as $role){
+            if(! in_array($role->name, $this->checkedRoles)){
+                array_push($this->checkedRoles, $role->name);
+                $roles = $roles->merge($role->childRoles());
+                $roles = $this->loopRoles($roles);
+            }
+        }
+        return $roles;
     }
 
     /**
@@ -36,6 +52,7 @@ trait HasRoles
             config('laravel-permission.table_names.user_has_permissions')
         );
     }
+
 
     /**
      * Scope the user query to certain roles only.
@@ -128,11 +145,11 @@ trait HasRoles
     public function hasRole($roles)
     {
         if (is_string($roles)) {
-            return $this->roles->contains('name', $roles);
+            return $this->roles()->contains('name', $roles);
         }
 
         if ($roles instanceof Role) {
-            return $this->roles->contains('id', $roles->id);
+            return $this->roles()->contains('id', $roles->id);
         }
 
         if (is_array($roles)) {
