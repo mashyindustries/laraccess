@@ -2,6 +2,7 @@
 
 namespace Spatie\Permission\Models;
 
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Exceptions\RoleDoesNotExist;
@@ -13,6 +14,9 @@ class Role extends Model implements RoleContract
     use HasPermissions;
     use RefreshesPermissionCache;
 
+    //Set the correct database connection (see more at Config\Database.php)
+    protected $connection = 'user';
+    
     /**
      * The attributes that aren't mass assignable.
      *
@@ -56,6 +60,45 @@ class Role extends Model implements RoleContract
             config('auth.model') ?: config('auth.providers.users.model'),
             config('laravel-permission.table_names.user_has_roles')
         );
+    }
+
+    /**
+     * Get all the roles which the parent inherits
+     *
+     * @return \Illuminate\Support\Collection return a collection of roles
+     **/
+    public function childRoles()
+    {
+        return $this->belongsToMany(
+            config('laravel-permission.models.role'),
+            config('laravel-permission.table_names.role_inherits'),
+            'parent_id',
+            'child_id'
+        )->get();
+    }
+
+    /**
+     * Adds a child role to the parent
+     *
+     * @param string|array|role|\Illuminate\Support\Collection $role
+     **/
+    public function assignChild($roles)
+    {
+        if ($roles instanceof Collection) {
+            $roles = $roles->toArray();
+        }
+
+        if (! is_array($roles)) {
+            $roles = [$roles];
+        }
+
+        $roles = array_map(function ($role) {
+            if ($role instanceof Role) {
+                $role;
+            }
+
+             app(Role::class)->findByName($role);
+        }, $roles);
     }
 
     /**
