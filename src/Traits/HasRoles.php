@@ -46,8 +46,8 @@ trait HasRoles
         foreach($roles as $role){
             if(! in_array($role->name, $this->checkedRoles)){
                 array_push($this->checkedRoles, $role->name);
-                $roles = $roles->merge($role->childRoles());
-                $roles = $this->loopRoles($roles);
+                $newroles = $this->loopRoles($role->childRoles());
+                $roles = $roles->merge($newroles);
             }
         }
         return $roles;
@@ -64,6 +64,16 @@ trait HasRoles
             config('laravel-permission.models.permission'),
             config('laravel-permission.table_names.user_has_permissions')
         );
+    }
+
+    public function allPermissions(){
+        $roles = $this->roles();
+        $permissions = $this->permissions()->get();
+        foreach ($roles as $role){
+            $newperms = $role->permissions()->get();
+            $permissions = $permissions->merge($newperms);
+        }
+        return $permissions;
     }
 
 
