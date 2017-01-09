@@ -1,28 +1,28 @@
 <?php
 
-namespace Spatie\Permission\Test;
+namespace Mashy\Permission\Test;
 
-use Spatie\Permission\Contracts\Role;
+use Mashy\Permission\Contracts\Role;
 use Illuminate\Database\Schema\Blueprint;
-use Spatie\Permission\PermissionRegistrar;
-use Spatie\Permission\Contracts\Permission;
+use Mashy\Permission\PermissionRegistrar;
+use Mashy\Permission\Contracts\Permission;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Spatie\Permission\PermissionServiceProvider;
+use Mashy\Permission\PermissionServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
     /**
-     * @var \Spatie\Permission\Test\User
+     * @var \Mashy\Permission\Test\User
      */
     protected $testUser;
 
     /**
-     * @var \Spatie\Permission\Models\Role
+     * @var \Mashy\Permission\Models\Role
      */
     protected $testRole;
 
     /**
-     * @var \Spatie\Permission\Models\Permission
+     * @var \Mashy\Permission\Models\Permission
      */
     protected $testPermission;
 

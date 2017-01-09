@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Permission\Test;
+namespace Mashy\Permission\Test;
 
-use Spatie\Permission\Contracts\Role;
+use Mashy\Permission\Contracts\Role;
 
 class BladeTest extends TestCase
 {
