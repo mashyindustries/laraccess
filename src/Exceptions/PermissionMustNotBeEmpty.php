@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Permission\Exceptions;
+namespace Mashy\Permission\Exceptions;
 
 use DomainException;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Permission\Middleware;
+namespace Mashy\Permission\Middleware;
 
 use Closure;
 use Auth;
