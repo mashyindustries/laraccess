@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Permission\Models;
+namespace Mashy\Permission\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\RefreshesPermissionCache;
-use Spatie\Permission\Exceptions\PermissionDoesNotExist;
-use Spatie\Permission\Contracts\Permission as PermissionContract;
+use Mashy\Permission\Traits\RefreshesPermissionCache;
+use Mashy\Permission\Exceptions\PermissionDoesNotExist;
+use Mashy\Permission\Contracts\Permission as PermissionContract;
 
 class Permission extends Model implements PermissionContract
 {

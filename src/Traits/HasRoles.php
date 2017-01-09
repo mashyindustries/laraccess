@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\Permission\Traits;
+namespace Mashy\Permission\Traits;
 
 use Illuminate\Support\Collection;
-use Spatie\Permission\Contracts\Role;
-use Spatie\Permission\Models\Role as R;
-use Spatie\Permission\Contracts\Permission;
-use Spatie\Permission\Exceptions\AlreadyAssigned;
+use Mashy\Permission\Contracts\Role;
+use Mashy\Permission\Models\Role as R;
+use Mashy\Permission\Contracts\Permission;
+use Mashy\Permission\Exceptions\AlreadyAssigned;
 
 trait HasRoles
 {
@@ -114,9 +114,9 @@ trait HasRoles
     /**
      * Assign the given role to the user.
      *
-     * @param array|string|\Spatie\Permission\Models\Role ...$roles
+     * @param array|string|\Mashy\Permission\Models\Role ...$roles
      *
-     * @return \Spatie\Permission\Contracts\Role
+     * @return \Mashy\Permission\Contracts\Role
      */
     public function assignRole(...$roles)
     {

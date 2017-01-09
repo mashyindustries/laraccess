@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Permission\Traits;
+namespace Mashy\Permission\Traits;
 
-use Spatie\Permission\Contracts\Permission;
+use Mashy\Permission\Contracts\Permission;
 
 trait HasPermissions
 {

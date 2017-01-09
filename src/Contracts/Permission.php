@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Permission\Contracts;
+namespace Mashy\Permission\Contracts;
 
 interface Permission
 {

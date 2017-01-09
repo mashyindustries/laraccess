@@ -1,15 +1,15 @@
 <?php
 
-namespace Spatie\Permission\Models;
+namespace Mashy\Permission\Models;
 
 use DB;
 use Illuminate\Support\Collection;
-use Spatie\Permission\Traits\HasRoles;
+use Mashy\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasPermissions;
-use Spatie\Permission\Exceptions\RoleDoesNotExist;
-use Spatie\Permission\Contracts\Role as RoleContract;
-use Spatie\Permission\Traits\RefreshesPermissionCache;
+use Mashy\Permission\Traits\HasPermissions;
+use Mashy\Permission\Exceptions\RoleDoesNotExist;
+use Mashy\Permission\Contracts\Role as RoleContract;
+use Mashy\Permission\Traits\RefreshesPermissionCache;
 
 class Role extends Model implements RoleContract
 {
@@ -95,9 +95,9 @@ class Role extends Model implements RoleContract
     /**
      * Adds a child role to the parent.
      *
-     * @param string|\Spatie\Permission\Models\Role $role
+     * @param string|\Mashy\Permission\Models\Role $role
      *
-     * @return \Spatie\Permission\Contracts\Role
+     * @return \Mashy\Permission\Contracts\Role
      */
     public function assignChild($role)
     {

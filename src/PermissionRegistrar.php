@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\Permission;
+namespace Mashy\Permission;
 
 use Log;
 use Exception;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Cache\Repository;
-use Spatie\Permission\Contracts\Permission;
+use Mashy\Permission\Contracts\Permission;
 
 class PermissionRegistrar
 {
@@ -23,7 +23,7 @@ class PermissionRegistrar
     /**
      * @var string
      */
-    protected $cacheKey = 'spatie.permission.cache';
+    protected $cacheKey = 'mashy.permission.cache';
 
     /**
      * @param Gate       $gate
