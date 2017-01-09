@@ -2,7 +2,9 @@
 
 namespace Spatie\Permission\Models;
 
+use DB;
 use Illuminate\Support\Collection;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Exceptions\RoleDoesNotExist;
@@ -76,29 +78,40 @@ class Role extends Model implements RoleContract
             'child_id'
         )->get();
     }
+    /**
+     * @param $role
+     *
+     * @return Role
+     */
+    protected static function getStoredRole($role)
+    {
+        if (is_string($role)) {
+            static::findByName($role);
+        }
+
+        return $role;
+    }
 
     /**
-     * Adds a child role to the parent
+     * Adds a child role to the parent.
      *
-     * @param string|array|role|\Illuminate\Support\Collection $role
-     **/
-    public function assignChild($roles)
+     * @param string|\Spatie\Permission\Models\Role $role
+     *
+     * @return \Spatie\Permission\Contracts\Role
+     */
+    public function assignChild($role)
     {
-        if ($roles instanceof Collection) {
-            $roles = $roles->toArray();
-        }
+        $config = config('laravel-permission.table_names');
+        $childrole = static::findByName($role);
+        $childid = $childrole->id;
 
-        if (! is_array($roles)) {
-            $roles = [$roles];
-        }
+        $parentid = $this->id;
 
-        $roles = array_map(function ($role) {
-            if ($role instanceof Role) {
-                $role;
-            }
+        DB::connection('user')->table($config['role_inherits'])->insert([
+            'parent_id' => $parentid,
+            'child_id' => $childid
+        ]);
 
-             app(Role::class)->findByName($role);
-        }, $roles);
     }
 
     /**
