@@ -4,24 +4,53 @@ namespace Spatie\Permission\Traits;
 
 use Illuminate\Support\Collection;
 use Spatie\Permission\Contracts\Role;
+use Spatie\Permission\Models\Role as R;
 use Spatie\Permission\Contracts\Permission;
+use Spatie\Permission\Exceptions\AlreadyAssigned;
 
 trait HasRoles
 {
     use HasPermissions;
     use RefreshesPermissionCache;
 
+    private $checkedRoles = [];
+
     /**
      * A user may have multiple roles.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function roles()
-    {
+    public function rolesWithoutCollection(){
         return $this->belongsToMany(
             config('laravel-permission.models.role'),
             config('laravel-permission.table_names.user_has_roles')
         );
+    }
+
+    public function roles(){
+        $roles = $this->belongsToMany(
+            config('laravel-permission.models.role'),
+            config('laravel-permission.table_names.user_has_roles')
+        )->get();
+
+        return $this->loopRoles($roles);
+    }
+
+    /**
+     * Loop through Roles and find it's child roles
+     * 
+     * @var \Illuminate\Support\Collection $roles
+     * @return \Illuminate\Support\Collection $roles
+     */
+    private function loopRoles($roles){
+        foreach($roles as $role){
+            if(! in_array($role->name, $this->checkedRoles)){
+                array_push($this->checkedRoles, $role->name);
+                $newroles = $this->loopRoles($role->childRoles());
+                $roles = $roles->merge($newroles);
+            }
+        }
+        return $roles;
     }
 
     /**
@@ -36,6 +65,17 @@ trait HasRoles
             config('laravel-permission.table_names.user_has_permissions')
         );
     }
+
+    public function allPermissions(){
+        $roles = $this->roles();
+        $permissions = $this->permissions()->get();
+        foreach ($roles as $role){
+            $newperms = $role->permissions()->get();
+            $permissions = $permissions->merge($newperms);
+        }
+        return $permissions;
+    }
+
 
     /**
      * Scope the user query to certain roles only.
@@ -80,17 +120,21 @@ trait HasRoles
      */
     public function assignRole(...$roles)
     {
-        $roles = collect($roles)
+        try{
+            $roles = collect($roles)
             ->flatten()
             ->map(function ($role) {
                 return $this->getStoredRole($role);
             })
             ->all();
 
-        $this->roles()->saveMany($roles);
+            $this->rolesWithoutCollection()->saveMany($roles);
 
-        $this->forgetCachedPermissions();
+            $this->forgetCachedPermissions();
 
+        }catch(\Exception $e){
+            throw new AlreadyAssigned();
+        }
         return $this;
     }
 
@@ -128,11 +172,11 @@ trait HasRoles
     public function hasRole($roles)
     {
         if (is_string($roles)) {
-            return $this->roles->contains('name', $roles);
+            return $this->roles()->contains('name', $roles);
         }
 
         if ($roles instanceof Role) {
-            return $this->roles->contains('id', $roles->id);
+            return $this->roles()->contains('id', $roles->id);
         }
 
         if (is_array($roles)) {
@@ -145,7 +189,7 @@ trait HasRoles
             return false;
         }
 
-        return (bool) $roles->intersect($this->roles)->count();
+        return (bool) $roles->intersect($this->roles())->count();
     }
 
     /**
@@ -170,18 +214,18 @@ trait HasRoles
     public function hasAllRoles($roles)
     {
         if (is_string($roles)) {
-            return $this->roles->contains('name', $roles);
+            return $this->roles()->contains('name', $roles);
         }
 
         if ($roles instanceof Role) {
-            return $this->roles->contains('id', $roles->id);
+            return $this->roles()->contains('id', $roles->id);
         }
 
         $roles = collect()->make($roles)->map(function ($role) {
             return $role instanceof Role ? $role->name : $role;
         });
 
-        return $roles->intersect($this->roles->pluck('name')) == $roles;
+        return $roles->intersect($this->roles()->pluck('name')) == $roles;
     }
 
     /**

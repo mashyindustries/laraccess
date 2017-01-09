@@ -2,6 +2,9 @@
 
 namespace Spatie\Permission\Models;
 
+use DB;
+use Illuminate\Support\Collection;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Exceptions\RoleDoesNotExist;
@@ -13,6 +16,9 @@ class Role extends Model implements RoleContract
     use HasPermissions;
     use RefreshesPermissionCache;
 
+    //Set the correct database connection (see more at Config\Database.php)
+    protected $connection = 'user';
+    
     /**
      * The attributes that aren't mass assignable.
      *
@@ -56,6 +62,56 @@ class Role extends Model implements RoleContract
             config('auth.model') ?: config('auth.providers.users.model'),
             config('laravel-permission.table_names.user_has_roles')
         );
+    }
+
+    /**
+     * Get all the roles which the parent inherits
+     *
+     * @return \Illuminate\Support\Collection return a collection of roles
+     **/
+    public function childRoles()
+    {
+        return $this->belongsToMany(
+            config('laravel-permission.models.role'),
+            config('laravel-permission.table_names.role_inherits'),
+            'parent_id',
+            'child_id'
+        )->get();
+    }
+    /**
+     * @param $role
+     *
+     * @return Role
+     */
+    protected static function getStoredRole($role)
+    {
+        if (is_string($role)) {
+            static::findByName($role);
+        }
+
+        return $role;
+    }
+
+    /**
+     * Adds a child role to the parent.
+     *
+     * @param string|\Spatie\Permission\Models\Role $role
+     *
+     * @return \Spatie\Permission\Contracts\Role
+     */
+    public function assignChild($role)
+    {
+        $config = config('laravel-permission.table_names');
+        $childrole = static::findByName($role);
+        $childid = $childrole->id;
+
+        $parentid = $this->id;
+
+        DB::connection('user')->table($config['role_inherits'])->insert([
+            'parent_id' => $parentid,
+            'child_id' => $childid
+        ]);
+
     }
 
     /**

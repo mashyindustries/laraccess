@@ -1,21 +1,27 @@
 {
-    "name": "spatie/laravel-permission",
-    "description": "Permission handling for Laravel 5.1",
+    "name": "mashyindustries/laravel-permission",
+    "description": "Roles, inheritance, and permissions handling for Laravel 5.3",
     "keywords": [
-        "spatie",
+        "mashyindustries",
         "laravel",
-        "permission",
+        "permissions",
         "acl",
-        "security"
+        "security",
+        "roles",
+        "inheritance"
     ],
-    "homepage": "https://github.com/spatie/laravel-permission",
+    "homepage": "https://github.com/roles/laravel-permission",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Albert Mashy",
+            "role": "Developer"
+        },
         {
             "name": "Freek Van der Herten",
             "email": "freek@spatie.be",
             "homepage": "https://spatie.be",
-            "role": "Developer"
+            "role": "Original Developer"
         }
     ],
     "require": {
@@ -30,12 +36,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Spatie\\Permission\\": "src"
+            "Mashy\\Permission\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\Permission\\Test\\": "tests"
+            "Mashy\\Permission\\Test\\": "tests"
         }
     },
     "scripts": {

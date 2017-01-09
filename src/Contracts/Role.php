@@ -35,4 +35,6 @@ interface Role
      * @return bool
      */
     public function hasPermissionTo($permission);
+
+    public function childRoles();
 }
