@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Permission\Traits;
+namespace Mashy\Permission\Traits;
 
-use Spatie\Permission\PermissionRegistrar;
+use Mashy\Permission\PermissionRegistrar;
 
 trait RefreshesPermissionCache
 {
