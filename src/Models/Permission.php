@@ -11,6 +11,9 @@ class Permission extends Model implements PermissionContract
 {
     use RefreshesPermissionCache;
 
+    //Set the correct database connection (see more at Config\Database.php)
+    protected $connection = 'user';
+
     /**
      * The attributes that aren't mass assignable.
      *

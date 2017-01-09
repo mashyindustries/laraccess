@@ -78,7 +78,21 @@ class CreatePermissionTables extends Migration
         });
 
         Schema::connection('user')->create($config['role_inherits'], function(Blueprint $table) use ($config){
-            $table->TODO;
+            $table->integer('id')->unsigned();
+            $table->integer('parent_id')->unsigned();
+            $table->integer('child_id')->unsigned();
+
+            $table->foreign('parent_id')
+                ->references('id')
+                ->on($config['roles'])
+                ->onDelete('cascade');
+
+            $table->foreign('child_id')
+                ->references('id')
+                ->on($config['roles'])
+                ->onDelete('cascade');
+
+            $table->primary(['id']);
         });
     }
 
