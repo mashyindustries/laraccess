@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Permission;
+namespace Mashy\Permission;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
-use Spatie\Permission\Contracts\Role as RoleContract;
-use Spatie\Permission\Contracts\Permission as PermissionContract;
+use Mashy\Permission\Contracts\Role as RoleContract;
+use Mashy\Permission\Contracts\Permission as PermissionContract;
 
 class PermissionServiceProvider extends ServiceProvider
 {
