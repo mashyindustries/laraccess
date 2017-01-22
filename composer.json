@@ -1,5 +1,5 @@
 {
-    "name": "mashyindustries/laravel-permission",
+    "name": "mashyindustries/laravel-acl",
     "description": "Roles, inheritance, and permissions handling for Laravel 5.3",
     "keywords": [
         "mashyindustries",
