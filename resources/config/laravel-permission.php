@@ -24,7 +24,7 @@ return [
         |
         */
 
-        'permission' => Spatie\Permission\Models\Permission::class,
+        'permission' => Mashy\Permission\Models\Permission::class,
 
         /*
         |--------------------------------------------------------------------------
@@ -40,7 +40,7 @@ return [
         |
         */
 
-        'role' => Spatie\Permission\Models\Role::class,
+        'role' => Mashy\Permission\Models\Role::class,
 
     ],
 

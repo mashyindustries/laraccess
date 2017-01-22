@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Permission\Test;
+namespace Mashy\Permission\Test;
 
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Contracts\Role;
-use Spatie\Permission\PermissionRegistrar;
-use Spatie\Permission\Contracts\Permission;
+use Mashy\Permission\Contracts\Role;
+use Mashy\Permission\PermissionRegistrar;
+use Mashy\Permission\Contracts\Permission;
 
 class CacheTest extends TestCase
 {

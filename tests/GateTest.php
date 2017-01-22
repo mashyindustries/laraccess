@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Permission\Test;
+namespace Mashy\Permission\Test;
 
-use Spatie\Permission\Exceptions\RoleDoesNotExist;
-use Spatie\Permission\Exceptions\PermissionDoesNotExist;
+use Mashy\Permission\Exceptions\RoleDoesNotExist;
+use Mashy\Permission\Exceptions\PermissionDoesNotExist;
 
 class GateTest extends TestCase
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Permission\Test;
+namespace Mashy\Permission\Test;
 
-use Spatie\Permission\Models\Permission;
+use Mashy\Permission\Models\Permission;
 
 class RoleTest extends TestCase
 {

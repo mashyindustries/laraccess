@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Permission\Test;
+namespace Mashy\Permission\Test;
 
-use Spatie\Permission\Contracts\Role;
-use Spatie\Permission\Exceptions\PermissionDoesNotExist;
+use Mashy\Permission\Contracts\Role;
+use Mashy\Permission\Exceptions\PermissionDoesNotExist;
 
 class HasRolesTest extends TestCase
 {
