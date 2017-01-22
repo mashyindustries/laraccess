@@ -25,7 +25,7 @@
     ],
     "require": {
         "php" : ">=5.6.0",
-        "laravel/framework": "5.4.*-dev",
+        "laravel/framework": "5.4.*",
         "illuminate/contracts": "5.4.*"
     },
     "require-dev": {
@@ -45,5 +45,7 @@
     },
     "scripts": {
         "test": "phpunit"
-    }
+    },
+    "minimum-stability": "dev"
+    
 }
