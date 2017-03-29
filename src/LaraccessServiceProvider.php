@@ -5,16 +5,13 @@ namespace Mashy\Laraccess;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
 use Mashy\Laraccess\Contracts\Role as RoleContract;
-use Mashy\Laraccess\Contracts\Permission as PermissionContract;
 
 class LaraccessServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
-     *
-     * @param PermissionRegistrar $permissionLoader
      */
-    public function boot(PermissionRegistrar $permissionLoader)
+    public function boot()
     {
         $this->publishes([
             __DIR__.'/../resources/config/laraccess.php' => $this->app->configPath().'/'.'laraccess.php',
@@ -33,8 +30,6 @@ class LaraccessServiceProvider extends ServiceProvider
             'laraccess'
         );
         $this->registerModelBindings();
-
-        $permissionLoader->registerPermissions();
     }
 
     /**
@@ -51,7 +46,7 @@ class LaraccessServiceProvider extends ServiceProvider
     protected function registerModelBindings()
     {
         $config = $this->app->config['laraccess.models'];
-        
+
         $this->app->bind(RoleContract::class, $config['role']);
     }
 
