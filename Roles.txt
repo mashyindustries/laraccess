@@ -1,0 +1,90 @@
+worker
+
+blogger
+
+accountant
+
+admin
+    - inherits
+        *
+ceo
+    - inherits
+        *
+
+corstex
+    - inherits
+        worker
+
+corstex.manager
+    - inherits
+        corstex.*
+            corstex.blogger
+            corstex.accountant
+    - passive-inherits
+        corstex
+
+corstex.blogger
+    - inherits
+        blogger
+    - permissions
+        blog
+    - passive-inherits
+        corstex
+
+corstex.accountant
+    - inherits
+        accountant
+    - passive-inherits
+        corstex
+
+==============
+    Pseduo
+==============
+roles(){
+    $roles = user->roles;
+
+    $allroles = getRoleInherits($roles)
+    checkedroles = [];
+
+    return $allroles;
+}
+
+getRoleInherits($roles){
+    $roles
+}
+
+==============
+    Tables
+==============
+roles
+    - id
+    - name
+    - slug
+    - description
+role_inherits
+    - parent_role_id
+    - child_role_id
+user_roles
+    - user_id
+    - role_id
+
+==============
+    Routes
+==============
+
+api/mpanel/mywork : worker
+    /corstex : corstex
+        /blog : corstex.blogger
+            /
+        /accounting : corstex.accountant
+    /mashyindustries : corstex
+        /blog : mashyindustries.blogger
+        /accounting : mashyindustries.blogger
+mPanel/mywork : worker
+    /corstex : corstex
+        /blog : corstex.blogger
+        /accounting : corstex.accountant
+    /mashyindustries
+        /blog : corstex.blogger
+        /accounting : corstex.accountant
+    /sense

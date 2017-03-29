@@ -1,13 +1,13 @@
 <?php
 
-namespace Mashy\Permission;
+namespace Mashy\Laraccess;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
-use Mashy\Permission\Contracts\Role as RoleContract;
-use Mashy\Permission\Contracts\Permission as PermissionContract;
+use Mashy\Laraccess\Contracts\Role as RoleContract;
+use Mashy\Laraccess\Contracts\Permission as PermissionContract;
 
-class PermissionServiceProvider extends ServiceProvider
+class LaraccessServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -17,20 +17,20 @@ class PermissionServiceProvider extends ServiceProvider
     public function boot(PermissionRegistrar $permissionLoader)
     {
         $this->publishes([
-            __DIR__.'/../resources/config/laravel-acl.php' => $this->app->configPath().'/'.'laravel-permission.php',
+            __DIR__.'/../resources/config/laraccess.php' => $this->app->configPath().'/'.'laraccess.php',
         ], 'config');
 
-        if (! class_exists('CreatePermissionTables')) {
+        if (! class_exists('CreateLaraccessTables')) {
             // Publish the migration
             $timestamp = date('Y_m_d_His', time());
             $this->publishes([
-                __DIR__.'/../resources/migrations/create_permission_tables.php.stub' => $this->app->databasePath().'/migrations/'.$timestamp.'_create_permission_tables.php',
+                __DIR__.'/../resources/migrations/create_laraccess_tables.php.stub' => $this->app->databasePath().'/migrations/'.$timestamp.'_create_laraccess_tables.php',
             ], 'migrations');
         }
 
         $this->mergeConfigFrom(
-            __DIR__.'/../resources/config/laravel-permission.php',
-            'laravel-permission'
+            __DIR__.'/../resources/config/laraccess.php',
+            'laraccess'
         );
         $this->registerModelBindings();
 
@@ -50,9 +50,8 @@ class PermissionServiceProvider extends ServiceProvider
      */
     protected function registerModelBindings()
     {
-        $config = $this->app->config['laravel-permission.models'];
-
-        $this->app->bind(PermissionContract::class, $config['permission']);
+        $config = $this->app->config['laraccess.models'];
+        
         $this->app->bind(RoleContract::class, $config['role']);
     }
 

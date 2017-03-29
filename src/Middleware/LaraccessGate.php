@@ -1,11 +1,11 @@
 <?php
 
-namespace Mashy\Permission\Middleware;
+namespace Mashy\Laraccess\Middleware;
 
 use Closure;
 use Auth;
 
-class PermissionGate
+class LaraccessGate
 {
     private $request;
     
@@ -21,10 +21,7 @@ class PermissionGate
     {
         $this->request = $request;
 
-        if(
-            (! $this->getAction('is') or $this->hasRole()) and
-            (! $this->getAction('can') or $this->hasPermission())
-        ) {
+        if(! $this->getAction('is') or $this->hasRole()){
             return $next($request);
         }
         if ($request->isJson() || $request->wantsJson()) {
@@ -62,19 +59,6 @@ class PermissionGate
         $role = $this->getAction('is');
 
         return $request->user()->hasRole($role);
-    }
-
-    /**
-     * Check if user has requested route permissions.
-     *
-     * @return bool
-     */
-    protected function hasPermission()
-    {
-        $request = $this->request;
-        $do = $this->getAction('can');
-
-        return $request->user()->can($do);
     }
 
 }

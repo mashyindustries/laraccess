@@ -1,18 +1,14 @@
 <?php
 
-namespace Mashy\Permission\Traits;
+namespace Mashy\Laraccess\Traits;
 
 use Illuminate\Support\Collection;
-use Mashy\Permission\Contracts\Role;
-use Mashy\Permission\Models\Role as R;
-use Mashy\Permission\Contracts\Permission;
-use Mashy\Permission\Exceptions\AlreadyAssigned;
+use Mashy\Laraccess\Contracts\Role;
+use Mashy\Laraccess\Models\Role as R;
+use Mashy\Laraccess\Exceptions\AlreadyAssigned;
 
 trait HasRoles
 {
-    use HasPermissions;
-    use RefreshesPermissionCache;
-
     private $checkedRoles = [];
 
     /**
@@ -226,68 +222,6 @@ trait HasRoles
         });
 
         return $roles->intersect($this->roles()->pluck('name')) == $roles;
-    }
-
-    /**
-     * Determine if the user may perform the given permission.
-     *
-     * @param string|Permission $permission
-     *
-     * @return bool
-     */
-    public function hasPermissionTo($permission)
-    {
-        if (is_string($permission)) {
-            $permission = app(Permission::class)->findByName($permission);
-        }
-
-        return $this->hasDirectPermission($permission) || $this->hasPermissionViaRole($permission);
-    }
-
-    /**
-     * @deprecated deprecated since version 1.0.1, use hasPermissionTo instead
-     *
-     * Determine if the user may perform the given permission.
-     *
-     * @param Permission $permission
-     *
-     * @return bool
-     */
-    public function hasPermission($permission)
-    {
-        return $this->hasPermissionTo($permission);
-    }
-
-    /**
-     * Determine if the user has, via roles, the given permission.
-     *
-     * @param Permission $permission
-     *
-     * @return bool
-     */
-    protected function hasPermissionViaRole(Permission $permission)
-    {
-        return $this->hasRole($permission->roles);
-    }
-
-    /**
-     * Determine if the user has the given permission.
-     *
-     * @param string|Permission $permission
-     *
-     * @return bool
-     */
-    protected function hasDirectPermission($permission)
-    {
-        if (is_string($permission)) {
-            $permission = app(Permission::class)->findByName($permission);
-
-            if (! $permission) {
-                return false;
-            }
-        }
-
-        return $this->permissions->contains('id', $permission->id);
     }
 
     /**

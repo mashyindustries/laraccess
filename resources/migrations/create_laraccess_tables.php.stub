@@ -1,0 +1,60 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+
+class CreateLaraccessTables extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        $config = config('laraccess.table-names');
+
+        Schema::connection($config['connection'])->create($config['roles'], function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('slug')->unique()->index();
+            $table->text('description');
+        });
+
+        Schema::connection($config['connection'])->create($config['user_roles'], function (Blueprint $table) use ($config) {
+            $table->integer('user_id')->unsigned();
+            $table->integer('role_id')->unsigned();
+
+            $table->primary(['role_id', 'user_id']);
+        });
+
+        Schema::connection($config['connection'])->create($config['role_inherits'], function(Blueprint $table) use ($config){
+            $table->integer('parent_role_id')->unsigned()->index();
+            $table->integer('child_role_id')->unsigned()->index();
+
+            $table->primary(['parent_role_id', 'child_role_id']);
+        });
+
+        Schema::connection($config['connection'])->create($config['role_wildcards'], function(Blueprint $table) use ($config){
+            $table->integer('parent_role_id')->unsigned()->index();
+            $table->string('wildcard_roles');
+
+            $table->primary(['parent_role_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        $config = config('laravel-permission.table_names');
+
+        Schema::connection($config['connection'])->drop($config['user_roles']);
+        Schema::connection($config['connection'])->drop($config['roles']);
+        Schema::connection($config['connection'])->drop($config['role_inherits']);
+        Schema::connection($config['connection'])->drop($config['role_wildcards']);
+    }
+}

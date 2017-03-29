@@ -1,20 +1,16 @@
 <?php
 
-namespace Mashy\Permission\Models;
+namespace Mashy\Laraccess\Models;
 
 use DB;
 use Illuminate\Support\Collection;
-use Mashy\Permission\Traits\HasRoles;
+use Mashy\Laraccess\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
-use Mashy\Permission\Traits\HasPermissions;
-use Mashy\Permission\Exceptions\RoleDoesNotExist;
-use Mashy\Permission\Contracts\Role as RoleContract;
-use Mashy\Permission\Traits\RefreshesPermissionCache;
+use Mashy\Laraccess\Exceptions\RoleDoesNotExist;
+use Mashy\Laraccess\Contracts\Role as RoleContract;
 
 class Role extends Model implements RoleContract
 {
-    use HasPermissions;
-    use RefreshesPermissionCache;
 
     //Set the correct database connection (see more at Config\Database.php)
     protected $connection = 'user';
@@ -36,19 +32,6 @@ class Role extends Model implements RoleContract
         parent::__construct($attributes);
 
         $this->setTable(config('laravel-permission.table_names.roles'));
-    }
-
-    /**
-     * A role may be given various permissions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany(
-            config('laravel-permission.models.permission'),
-            config('laravel-permission.table_names.role_has_permissions')
-        );
     }
 
     /**
@@ -78,25 +61,11 @@ class Role extends Model implements RoleContract
             'child_id'
         )->get();
     }
-    /**
-     * @param $role
-     *
-     * @return Role
-     */
-    protected static function getStoredRole($role)
-    {
-        if (is_string($role)) {
-            static::findByName($role);
-        }
-
-        return $role;
-    }
 
     /**
      * Adds a child role to the parent.
      *
      * @param string|\Mashy\Permission\Models\Role $role
-     *
      * @return \Mashy\Permission\Contracts\Role
      */
     public function assignChild($role)
@@ -111,17 +80,14 @@ class Role extends Model implements RoleContract
             'parent_id' => $parentid,
             'child_id' => $childid
         ]);
-
     }
 
     /**
      * Find a role by its name.
      *
      * @param string $name
-     *
-     * @throws RoleDoesNotExist
-     *
      * @return Role
+     * @throws RoleDoesNotExist
      */
     public static function findByName($name)
     {
@@ -132,21 +98,5 @@ class Role extends Model implements RoleContract
         }
 
         return $role;
-    }
-
-    /**
-     * Determine if the user may perform the given permission.
-     *
-     * @param string|Permission $permission
-     *
-     * @return bool
-     */
-    public function hasPermissionTo($permission)
-    {
-        if (is_string($permission)) {
-            $permission = app(Permission::class)->findByName($permission);
-        }
-
-        return $this->permissions->contains('id', $permission->id);
     }
 }

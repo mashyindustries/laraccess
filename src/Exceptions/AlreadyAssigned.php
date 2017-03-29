@@ -1,6 +1,6 @@
 <?php
 
-namespace Mashy\Permission\Exceptions;
+namespace Mashy\Laraccess\Exceptions;
 
 use Exception;
 
