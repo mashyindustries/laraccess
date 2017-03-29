@@ -1,9 +1,10 @@
 {
-    "name": "mashyindustries/laravel-acl",
-    "description": "Roles, inheritance, and permissions handling for Laravel 5.3",
+    "name": "mashyindustries/laraccess",
+    "description": "Roles, Inheritence & Permissions for Laravel 5.4",
     "keywords": [
         "mashyindustries",
         "laravel",
+        "laraccess",
         "permissions",
         "acl",
         "security",
@@ -15,12 +16,6 @@
         {
             "name": "Albert Mashy",
             "role": "Developer"
-        },
-        {
-            "name": "Freek Van der Herten",
-            "email": "freek@spatie.be",
-            "homepage": "https://spatie.be",
-            "role": "Original Developer"
         }
     ],
     "require": {
@@ -35,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Mashy\\Permission\\": "src"
+            "Mashy\\Laraccess\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mashy\\Permission\\Test\\": "tests"
+            "Mashy\\Laraccess\\Test\\": "tests"
         }
     },
     "scripts": {
