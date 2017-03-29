@@ -17,7 +17,7 @@ class PermissionServiceProvider extends ServiceProvider
     public function boot(PermissionRegistrar $permissionLoader)
     {
         $this->publishes([
-            __DIR__.'/../resources/config/laravel-permission.php' => $this->app->configPath().'/'.'laravel-permission.php',
+            __DIR__.'/../resources/config/laravel-acl.php' => $this->app->configPath().'/'.'laravel-permission.php',
         ], 'config');
 
         if (! class_exists('CreatePermissionTables')) {
