@@ -7,13 +7,16 @@ use Illuminate\Support\Collection;
 use Mashy\Laraccess\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 use Mashy\Laraccess\Exceptions\RoleDoesNotExist;
-use Mashy\Laraccess\Contracts\Role as RoleContract;
 
-class Role extends Model implements RoleContract
+class Role extends Model
 {
 
     //Set the correct database connection (see more at Config\Database.php)
     protected $connection = 'user';
+
+    //disable timestamps
+    public $timestamps = false;
+
     
     /**
      * The attributes that aren't mass assignable.
@@ -31,7 +34,7 @@ class Role extends Model implements RoleContract
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('laravel-permission.table_names.roles'));
+        $this->setTable(config('laraccess.table_names.roles'));
     }
 
     /**
@@ -42,56 +45,128 @@ class Role extends Model implements RoleContract
     public function users()
     {
         return $this->belongsToMany(
-            config('auth.model') ?: config('auth.providers.users.model'),
-            config('laravel-permission.table_names.user_has_roles')
+            config('auth.providers.users.model'),
+            config('laraccess.table_names.user_roles')
         );
     }
 
     /**
      * Get all the roles which the parent inherits
      *
-     * @return \Illuminate\Support\Collection return a collection of roles
+     * @return \Illuminate\Support\Collection
      **/
-    public function childRoles()
+    public function getInheritedRoles()
     {
         return $this->belongsToMany(
-            config('laravel-permission.models.role'),
-            config('laravel-permission.table_names.role_inherits'),
-            'parent_id',
-            'child_id'
+            config('laraccess.models.role'),
+            config('laraccess.table_names.role_inherits'),
+            'parent_role_id',
+            'child_role_id'
         )->get();
     }
 
     /**
-     * Adds a child role to the parent.
-     *
-     * @param string|\Mashy\Permission\Models\Role $role
-     * @return \Mashy\Permission\Contracts\Role
-     */
-    public function assignChild($role)
+     * Get's the roles parents
+     **/
+    public function getParentRoles()
     {
-        $config = config('laravel-permission.table_names');
-        $childrole = static::findByName($role);
-        $childid = $childrole->id;
-
-        $parentid = $this->id;
-
-        DB::connection('user')->table($config['role_inherits'])->insert([
-            'parent_id' => $parentid,
-            'child_id' => $childid
-        ]);
+        $slugs = explode('.', $this->slug);
+        $roles = collect();
+        foreach ($slugs as $slug){
+            $roles = $roles->push(static::where('slug', $slug)->first());
+        }
+        return $roles;
     }
 
     /**
-     * Find a role by its name.
+     * Get all the roles wildcard roles
      *
-     * @param string $name
+     * @param Role
+     **/
+    public function getRoleWildcardRoles()
+    {
+        $config = config('laraccess.table_names');
+
+        $wildcards = DB::connection($config['connection'])
+            ->table($config['role_wildcards'])
+            ->where('parent_role_id', $this->id)
+            ->get();
+
+        $roles = collect();
+        foreach($wildcards as $wildcard){
+            $wildcardString = $wildcard->wildcard;
+            if(substr($wildcardString, -1) == "*"){
+                $roles = $roles->merge(static::where('slug', 'like', substr($wildcardString, 0, -1)."%")->get());
+            }
+        }
+
+        return $roles;
+    }
+
+    /**
+     * Assign a child role to the role
+     *
+     * @param string|Role $role
+     **/
+    public function assignRole($role)
+    {
+        $config = config('laraccess.table_names');
+
+        if (is_string($role)) {
+            if (substr($role, -1) == "*"){
+                DB::connection($config['connection'])->table($config['role_wildcards'])->insert([
+                    'parent_role_id' => $this->id,
+                    'wildcard' => $role
+                ]);
+            }else{
+                $role = static::findBySlug($role);
+            }
+        }else{
+            DB::connection($config['connection'])->table($config['role_inherits'])->insert([
+                'parent_role_id' => $this->id,
+                'child_role_id' => $role->id
+            ]);
+        }
+    }
+
+    /**
+     * Assign a child role to the role
+     *
+     * @param string|Role $role
+     **/
+    public function detachRole($role)
+    {
+        $config = config('laraccess.table_names');
+
+        if (is_string($role)) {
+            if (substr($role, -1) == "*"){
+                DB::connection($config['connection'])
+                    ->table($config['role_wildcards'])
+                    ->where('parent_role_id', $this->id)
+                    ->where('wildcard', $role)
+                    ->delete();
+            }
+            $role = static::findBySlug($role);
+        }
+
+        DB::connection($config['connection'])
+            ->table($config['role_inherits'])
+            ->where('parent_role_id', $this->id)
+            ->where('child_role_id', $role->id)
+            ->delete();
+    }
+
+
+    /**
+     * Find a role by its slug.
+     *
+     * @param string $slug
      * @return Role
      * @throws RoleDoesNotExist
      */
-    public static function findByName($name)
+    public static function findBySlug($slug)
     {
-        $role = static::where('name', $name)->first();
+        $role = static::where('slug', $slug)->first();
 
         if (! $role) {
             throw new RoleDoesNotExist();
@@ -99,4 +174,19 @@ class Role extends Model implements RoleContract
 
         return $role;
     }
+
+    /**
+     * @param $role
+     *
+     * @return Role
+     */
+    protected static function getStoredRole($role)
+    {
+        if (is_string($role)) {
+            return static::findBySlug($role);
+        }
+
+        return $role;
+    }
+
 }

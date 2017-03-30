@@ -9,7 +9,7 @@ It includes blade directives & middleware
 
 You can install the package via composer:
 ``` bash
-$ composer require spatie/laravel-permission
+$ composer require mashyindustries/laraccess
 ```
 
 This service provider must be installed.
@@ -17,13 +17,13 @@ This service provider must be installed.
 // config/app.php
 'providers' => [
     ...
-    Spatie\Permission\PermissionServiceProvider::class,
+    Mashy\Laraccess\LaraccessServiceProvider::class,
 ];
 ```
 
 You can publish the migration with:
 ```bash
-php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="Mashy\Laraccess\LaraccessServiceProvider" --tag="migrations"
 ```
 
 The package assumes that your users table name is called "users". If this is not the case
@@ -38,16 +38,16 @@ php artisan migrate
 
 You can publish the config-file with:
 ```bash
-php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Mashy\Laraccess\LaraccessServiceProvider" --tag="config"
 ```
 
 ## Usage
 
-First add the `Spatie\Permission\Traits\HasRoles`-trait to your User model.
+First add the `Mashy\Laraccess\Traits\HasRoles`-trait to your User model.
 
 ```php
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Spatie\Permission\Traits\HasRoles;
+use Mashy\Laraccess\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -61,11 +61,9 @@ This package allows for users to be associated with roles. Permissions can be as
 A `Role` and a `Permission` are regular Eloquent-models. They can have a name and can be created like this:
 
 ```php
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Mashy\Laraccess\Models\Role;
 
 $role = Role::create(['name' => 'writer']);
-$permission = Permission::create(['name' => 'edit articles']);
 ```
 
 The `HasRoles` adds eloquent relationships to your models, which can be accessed directly or used as a base query.

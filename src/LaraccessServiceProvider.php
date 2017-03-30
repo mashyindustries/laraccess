@@ -4,7 +4,6 @@ namespace Mashy\Laraccess;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
-use Mashy\Laraccess\Contracts\Role as RoleContract;
 
 class LaraccessServiceProvider extends ServiceProvider
 {
@@ -29,7 +28,6 @@ class LaraccessServiceProvider extends ServiceProvider
             __DIR__.'/../resources/config/laraccess.php',
             'laraccess'
         );
-        $this->registerModelBindings();
     }
 
     /**
@@ -41,16 +39,6 @@ class LaraccessServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bind the Permission and Role model into the IoC.
-     */
-    protected function registerModelBindings()
-    {
-        $config = $this->app->config['laraccess.models'];
-
-        $this->app->bind(RoleContract::class, $config['role']);
-    }
-
-    /**
      * Register the blade extensions.
      */
     protected function registerBladeExtensions()
@@ -59,28 +47,14 @@ class LaraccessServiceProvider extends ServiceProvider
             $bladeCompiler->directive('role', function ($role) {
                 return "<?php if(auth()->check() && auth()->user()->hasRole({$role})): ?>";
             });
-            $bladeCompiler->directive('endrole', function () {
-                return '<?php endif; ?>';
-            });
-
-            $bladeCompiler->directive('hasrole', function ($role) {
-                return "<?php if(auth()->check() && auth()->user()->hasRole({$role})): ?>";
-            });
-            $bladeCompiler->directive('endhasrole', function () {
-                return '<?php endif; ?>';
-            });
-
-            $bladeCompiler->directive('hasanyrole', function ($roles) {
+            $bladeCompiler->directive('anyrole', function ($roles) {
                 return "<?php if(auth()->check() && auth()->user()->hasAnyRole({$roles})): ?>";
             });
-            $bladeCompiler->directive('endhasanyrole', function () {
-                return '<?php endif; ?>';
-            });
-
-            $bladeCompiler->directive('hasallroles', function ($roles) {
+            $bladeCompiler->directive('allroles', function ($roles) {
                 return "<?php if(auth()->check() && auth()->user()->hasAllRoles({$roles})): ?>";
             });
-            $bladeCompiler->directive('endhasallroles', function () {
+
+            $bladeCompiler->directive('endrole', function () {
                 return '<?php endif; ?>';
             });
         });
