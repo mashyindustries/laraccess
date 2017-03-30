@@ -1,4 +1,6 @@
-# Associate users with roles
+# Laraccess - User Roles & Role Inheritance
+
+Works with Laravel 5.4
 
 This package allows to save roles in a database.
 Roles can inherit other roles too.
@@ -29,8 +31,7 @@ php artisan vendor:publish --provider="Mashy\Laraccess\LaraccessServiceProvider"
 The package assumes that your users table name is called "users". If this is not the case
 you should manually edit the published migration to use your custom table name.
 
-After the migration has been published you can create the role- and permission-tables by
-running the migrations:
+After the migration has been published you can create the role tables with:
 
 ```bash
 php artisan migrate
@@ -43,13 +44,12 @@ php artisan vendor:publish --provider="Mashy\Laraccess\LaraccessServiceProvider"
 
 ## Usage
 
-First add the `Mashy\Laraccess\Traits\HasRoles`-trait to your User model.
+First add the `Mashy\Laraccess\Traits\HasRoles` trait to your User model.
 
 ```php
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Mashy\Laraccess\Traits\HasRoles;
 
-class User extends Authenticatable
+class User
 {
     use HasRoles;
     
@@ -57,60 +57,27 @@ class User extends Authenticatable
 }
 ```
 
-This package allows for users to be associated with roles. Permissions can be associated with roles.
-A `Role` and a `Permission` are regular Eloquent-models. They can have a name and can be created like this:
+This package allows for users to be associated with roles. 
+
+You can create roles with:
 
 ```php
 use Mashy\Laraccess\Models\Role;
 
-$role = Role::create(['name' => 'writer']);
+$role = Role::create([
+    'name' => 'Writer', //optional
+    'slug' => 'writer', //required
+    'description' => '' //optional
+]);
 ```
 
-The `HasRoles` adds eloquent relationships to your models, which can be accessed directly or used as a base query.
+The `HasRoles` adds collections to your models.
 
 ```php
-$permissions = $user->permissions;
-$roles = $user->roles()->pluck('name'); // returns a collection
+$roles = $user->roles(); // returns a collection
 ```
 
-The `HasRoles` also adds a scope to your models to scope the query to certain roles.
-
-```php
-$users = User::role('writer')->get(); // Only returns users with the role 'writer'
-```
-The scope can accept a string, a `Spatie\Permission\Models\Role`-object or an `\Illuminate\Support\Collection`-object.
-
-###Using permissions
-A permission can be given to a user:
-
-```php
-$user->givePermissionTo('edit articles');
-
-//you can also give multiple permission at once
-$user->givePermissionTo('edit articles', 'delete articles');
-
-//you may also pass an array
-$user->givePermissionTo(['edit articles', 'delete articles']);
-```
-
-A permission can be revoked from a user:
-
-```php
-$user->revokePermissionTo('edit articles');
-```
-
-You can test if a user has a permission:
-```php
-$user->hasPermissionTo('edit articles');
-```
-
-Saved permissions will be registered with the `Illuminate\Auth\Access\Gate`-class. So you can
-test if a user has a permission with Laravel's default `can`-function.
-```php
-$user->can('edit articles');
-```
-
-###Using roles and permissions
+### Using Roles
 A role can be assigned to a user:
 
 ```php
@@ -142,43 +109,14 @@ $user->hasRole('writer');
 
 You can also determine if a user has any of a given list of roles:
 ```php
-$user->hasAnyRole(Role::all());
+$user->hasAnyRole(['writer', 'admin']);
 ```
 You can also determine if a user has all of a given list of roles:
 
 ```php
-$user->hasAllRoles(Role::all());
+$user->hasAllRoles(['writer', 'admin']);
 ```
 
-The `assignRole`, `hasRole`, `hasAnyRole`, `hasAllRoles`  and `removeRole`-functions can accept a
- string, a `Spatie\Permission\Models\Role`-object or an `\Illuminate\Support\Collection`-object.
-
-A permission can be given to a role:
-
-```php
-$role->givePermissionTo('edit articles');
-```
-
-
-You can determine if a role has a certain permission:
-
-```php
-$role->hasPermissionTo('edit articles');
-```
-
-A permission can be revoked from a role:
-
-```php
-$role->revokePermissionTo('edit articles');
-```
-
-The `givePermissionTo` and `revokePermissionTo`-functions can accept a 
-string or a `Spatie\Permission\Models\Permission`-object.
-
-Saved permission and roles are also registered with the `Illuminate\Auth\Access\Gate`-class.
-```php
-$user->can('edit articles');
-```
 
 ###Using blade directives
 This package also adds Blade directives to verify whether the
@@ -193,117 +131,34 @@ I'm not a writer...
 ```
 
 ```php
-@hasrole('writer')
-I'm a writer!
-@else
-I'm not a writer...
-@endhasrole
-```
-
-```php
-@hasanyrole(Role::all())
+@hasanyrole(['writer', 'admin'])
 I have one or more of these roles!
 @else
 I have none of these roles...
-@endhasanyrole
+@endrole
 ```
 
 ```php
-@hasallroles(Role::all())
+@hasallroles(['writer', 'admin'])
 I have all of these roles!
 @else
 I don't have all of these roles...
-@endhasallroles
+@endrole
 ```
 
 You can use Laravel's native `@can` directive to check if a user has a certain permission.
 
-## Using a middleware
-The package doesn't contain a middleware to check permissions but it's very trivial to add this yourself.
+### Using a middleware
 
-``` bash
-$ php artisan make:middleware RoleMiddleware
-```
+Information coming soon...
 
-This will create a RoleMiddleware for you, where you can handle your role and permissions check.
-```php
-// app/Http/Middleware/RoleMiddleware.php
-use Auth;
+### Inheritance
 
-...
-
-public function handle($request, Closure $next, $role, $permission)
-{
-    if (Auth::guest()) {
-        return redirect($urlOfYourLoginPage);
-    }
-
-    if (! $request->user()->hasRole($role)) {
-       abort(403);
-    }
-    
-    if (! $request->user()->can($permission)) {
-       abort(403);
-    }
-
-    return $next($request);
-}
-```
-
-Don't forget to add the route middleware to your Kernel:
-
-```php
-// app/Http/Kernel.php
-protected $routeMiddleware = [
-    ...
-    'role' => \App\Http\Middleware\RoleMiddleware::class,
-    ...
-];
-```
-
-Now you can protect your routes using the middleware you just set up:
-
-```php
-Route::group(['middleware' => ['role:admin,access_backend']], function () {
-    //
-});
-```
-
-## Extending
-
-If you need to extend or replace the existing `Role` or `Permission` models you just need to 
-keep the following things in mind:
-
-- Your `Role` model needs to implement the `Spatie\Permission\Contracts\Role` contract
-- Your `Permission` model needs to implement the `Spatie\Permission\Contracts\Permission` contract
-- You must publish the configuration with this command: `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="config"` and update the `models.role` and `models.permission` values
-
-## Change log
-
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
-## Testing
-
-``` bash
-$ composer test
-```
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security
-
-If you discover any security related issues, please email [freek@spatie.be](mailto:freek@spatie.be) instead of using the issue tracker.
+Information coming soon...
 
 ## Credits
 
-- [Freek Van der Herten](https://github.com/freekmurze)
-- [All Contributors](../../contributors)
-
-This package is heavily based on [Jeffrey Way](https://twitter.com/jeffrey_way)'s awesome [Laracasts](https://laracasts.com)-lesson
-on [roles and permissions](https://laracasts.com/series/whats-new-in-laravel-5-1/episodes/16). His original code
-can be found [in this repo on GitHub](https://github.com/laracasts/laravel-5-roles-and-permissions-demo).
+This package was based on [Spatie/Laravel-Permission](https://github.com/spatie/laravel-permission)
 
 ## Alternatives
 
@@ -311,10 +166,5 @@ can be found [in this repo on GitHub](https://github.com/laracasts/laravel-5-rol
 - [BeatSwitch/lock-laravel](https://github.com/BeatSwitch/lock-laravel)
 - [Zizaco/entrust](https://github.com/Zizaco/entrust)
 - [bican/roles](https://github.com/romanbican/roles)
+- [spatie/laravel-permission](https://github.com/spatie/laravel-permission)
 
-## About Spatie
-Spatie is webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

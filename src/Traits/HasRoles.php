@@ -36,9 +36,6 @@ trait HasRoles
 
         $allRoles = static::loopRoles($roles);
         static::$checkedRoles = [];
-        foreach($allRoles as $role){
-            var_dump($role->slug);
-        }
         return $allRoles;
     }
 
