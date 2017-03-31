@@ -151,7 +151,7 @@ trait HasRoles
     public function hasRole($roles)
     {
         if (is_string($roles)) {
-            return $this->roles()->contains('name', $roles);
+            return $this->roles()->contains('slug', $roles);
         }
 
         if ($roles instanceof Role) {

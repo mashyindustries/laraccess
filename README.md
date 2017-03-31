@@ -43,7 +43,6 @@ php artisan vendor:publish --provider="Mashy\Laraccess\LaraccessServiceProvider"
 ```
 
 ## Usage
-
 First add the `Mashy\Laraccess\Traits\HasRoles` trait to your User model.
 
 ```php

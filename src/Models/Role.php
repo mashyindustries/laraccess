@@ -71,11 +71,16 @@ class Role extends Model
     public function getParentRoles()
     {
         $slugs = explode('.', $this->slug);
+        array_pop($slugs);
         $roles = collect();
+        
         foreach ($slugs as $slug){
-            $roles = $roles->push(static::where('slug', $slug)->first());
+            $role = static::where('slug', $slug)->first();
+            if(! is_null($role)){
+                $roles = $roles->push($role);
+            }
         }
-        return $roles;
+        return $roles->unique();
     }
 
     /**
