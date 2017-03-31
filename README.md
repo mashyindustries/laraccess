@@ -117,7 +117,7 @@ $user->hasAllRoles(['writer', 'admin']);
 ```
 
 
-###Using blade directives
+### Using blade directives
 This package also adds Blade directives to verify whether the
 currently logged in user has all or any of a given list of roles.
 
