@@ -33,6 +33,7 @@ trait HasRoles
             config('laraccess.models.role'),
             config('laraccess.table_names.user_roles')
         )->get();
+
         $allRoles = static::loopRoles($roles);
         static::$checkedRoles = [];
         return $allRoles;
