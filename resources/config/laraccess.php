@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Authorization Models
+    | Laraccess Models
     |--------------------------------------------------------------------------
     */
     'models' => [
@@ -12,17 +12,13 @@ return [
         |--------------------------------------------------------------------------
         | Role Model
         |--------------------------------------------------------------------------
-        |
-        | When using the "HasRoles" trait from this package, we need to know which
-        | Eloquent model should be used to retrieve your roles. Of course, it
-        | is often just the "Role" model but you may use whatever you like.
         */
         'role' => Mashy\Laraccess\Models\Role::class,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Authorization Tables
+    | Laraccess Tables
     |--------------------------------------------------------------------------
     */
 
@@ -42,6 +38,9 @@ return [
 
         //Role inherits Table Name
         'role_inherits' => 'role_inherits',
+
+        //Role wildcard inherits
+        'role_wildcards' => 'role_wildcards'
 
     ],
 

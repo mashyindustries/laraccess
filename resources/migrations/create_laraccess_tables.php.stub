@@ -12,7 +12,7 @@ class CreateLaraccessTables extends Migration
      */
     public function up()
     {
-        $config = config('laraccess.table-names');
+        $config = config('laraccess.table_names');
 
         Schema::connection($config['connection'])->create($config['roles'], function (Blueprint $table) {
             $table->increments('id');
@@ -37,9 +37,7 @@ class CreateLaraccessTables extends Migration
 
         Schema::connection($config['connection'])->create($config['role_wildcards'], function(Blueprint $table) use ($config){
             $table->integer('parent_role_id')->unsigned()->index();
-            $table->string('wildcard_roles');
-
-            $table->primary(['parent_role_id']);
+            $table->string('wildcard');
         });
     }
 
@@ -50,10 +48,10 @@ class CreateLaraccessTables extends Migration
      */
     public function down()
     {
-        $config = config('laravel-permission.table_names');
+        $config = config('laraccess.table_names');
 
-        Schema::connection($config['connection'])->drop($config['user_roles']);
         Schema::connection($config['connection'])->drop($config['roles']);
+        Schema::connection($config['connection'])->drop($config['user_roles']);
         Schema::connection($config['connection'])->drop($config['role_inherits']);
         Schema::connection($config['connection'])->drop($config['role_wildcards']);
     }

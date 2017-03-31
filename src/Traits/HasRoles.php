@@ -3,33 +3,39 @@
 namespace Mashy\Laraccess\Traits;
 
 use Illuminate\Support\Collection;
-use Mashy\Laraccess\Contracts\Role;
-use Mashy\Laraccess\Models\Role as R;
+use Mashy\Laraccess\Models\Role;
 use Mashy\Laraccess\Exceptions\AlreadyAssigned;
 
 trait HasRoles
 {
-    private $checkedRoles = [];
+
+    protected static $checkedRoles = [];
 
     /**
-     * A user may have multiple roles.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * Return all user roles
+     * 
+     * @return belongsToMany 
      */
-    public function rolesWithoutCollection(){
+    public function trueRoles(){
         return $this->belongsToMany(
-            config('laravel-permission.models.role'),
-            config('laravel-permission.table_names.user_has_roles')
+            config('laraccess.models.role'),
+            config('laraccess.table_names.user_roles')
         );
     }
 
+    /**
+     * Return all user roles - Including inherited roles
+     * 
+     * @return Illuminate\Support\Collection 
+     */
     public function roles(){
         $roles = $this->belongsToMany(
-            config('laravel-permission.models.role'),
-            config('laravel-permission.table_names.user_has_roles')
+            config('laraccess.models.role'),
+            config('laraccess.table_names.user_roles')
         )->get();
-
-        return $this->loopRoles($roles);
+        $allRoles = static::loopRoles($roles);
+        static::$checkedRoles = [];
+        return $allRoles;
     }
 
     /**
@@ -38,38 +44,16 @@ trait HasRoles
      * @var \Illuminate\Support\Collection $roles
      * @return \Illuminate\Support\Collection $roles
      */
-    private function loopRoles($roles){
+    protected static function loopRoles($roles){
         foreach($roles as $role){
-            if(! in_array($role->name, $this->checkedRoles)){
-                array_push($this->checkedRoles, $role->name);
-                $newroles = $this->loopRoles($role->childRoles());
-                $roles = $roles->merge($newroles);
+            if(! in_array($role->slug, static::$checkedRoles)){
+                array_push(static::$checkedRoles, $role->slug);
+                $roles = $roles->merge(static::loopRoles($role->getParentRoles()));
+                $roles = $roles->merge(static::loopRoles($role->getRoleWildcardRoles()));
+                $roles = $roles->merge(static::loopRoles($role->getInheritedRoles()));
             }
         }
         return $roles;
-    }
-
-    /**
-     * A user may have multiple direct permissions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany(
-            config('laravel-permission.models.permission'),
-            config('laravel-permission.table_names.user_has_permissions')
-        );
-    }
-
-    public function allPermissions(){
-        $roles = $this->roles();
-        $permissions = $this->permissions()->get();
-        foreach ($roles as $role){
-            $newperms = $role->permissions()->get();
-            $permissions = $permissions->merge($newperms);
-        }
-        return $permissions;
     }
 
 
@@ -95,7 +79,7 @@ trait HasRoles
                 return $role;
             }
 
-            return app(Role::class)->findByName($role);
+            return app(Role::class)->findBySlug($role);
         }, $roles);
 
         return $query->whereHas('roles', function ($query) use ($roles) {
@@ -112,7 +96,7 @@ trait HasRoles
      *
      * @param array|string|\Mashy\Permission\Models\Role ...$roles
      *
-     * @return \Mashy\Permission\Contracts\Role
+     * @return \Mashy\Laraccess\Models\Role
      */
     public function assignRole(...$roles)
     {
@@ -120,13 +104,11 @@ trait HasRoles
             $roles = collect($roles)
             ->flatten()
             ->map(function ($role) {
-                return $this->getStoredRole($role);
+                return Role::getStoredRole($role);
             })
             ->all();
 
-            $this->rolesWithoutCollection()->saveMany($roles);
-
-            $this->forgetCachedPermissions();
+            $this->trueRoles()->saveMany($roles);
 
         }catch(\Exception $e){
             throw new AlreadyAssigned();
@@ -168,7 +150,7 @@ trait HasRoles
     public function hasRole($roles)
     {
         if (is_string($roles)) {
-            return $this->roles()->contains('name', $roles);
+            return $this->roles()->contains('slug', $roles);
         }
 
         if ($roles instanceof Role) {
@@ -222,19 +204,5 @@ trait HasRoles
         });
 
         return $roles->intersect($this->roles()->pluck('name')) == $roles;
-    }
-
-    /**
-     * @param $role
-     *
-     * @return Role
-     */
-    protected function getStoredRole($role)
-    {
-        if (is_string($role)) {
-            return app(Role::class)->findByName($role);
-        }
-
-        return $role;
     }
 }
